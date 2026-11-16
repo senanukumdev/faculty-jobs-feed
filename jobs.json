@@ -1,0 +1,28 @@
+[
+  {
+    "id": "live-1",
+    "title": "Assistant Professor - Computer Science",
+    "institution": "IIT Madras",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "country": "India",
+    "subjectArea": "Computer Science",
+    "postedDate": "2026-11-17",
+    "deadline": "2026-12-20",
+    "description": "PhD in CS/AI required. Live job loaded from GitHub!",
+    "applyUrl": "https://www.iitm.ac.in/"
+  },
+  {
+    "id": "live-2",
+    "title": "Lecturer - Mechanical Engineering",
+    "institution": "Sultan Qaboos University",
+    "city": "Muscat",
+    "state": "Muscat",
+    "country": "Oman",
+    "subjectArea": "Engineering",
+    "postedDate": "2026-11-16",
+    "deadline": "2026-12-15",
+    "description": "Master's or PhD in Mechanical Engineering.",
+    "applyUrl": "https://www.squ.edu.om/"
+  }
+]
