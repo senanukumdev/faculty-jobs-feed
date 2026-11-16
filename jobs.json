@@ -24,5 +24,19 @@
     "deadline": "2026-12-15",
     "description": "Master's or PhD in Mechanical Engineering.",
     "applyUrl": "https://www.squ.edu.om/"
+  },
+  ,
+  {
+    "id": "live-3",
+    "title": "Associate Professor - Data Science",
+    "institution": "Samarkand International University of Technology",
+    "city": "Samarkand",
+    "state": "Samarkand",
+    "country": "Uzbekistan",
+    "subjectArea": "Computer Science",
+    "postedDate": "2026-11-17",
+    "deadline": "2026-12-25",
+    "description": "International faculty position. English medium instruction.",
+    "applyUrl": "https://siut.uz/"
   }
 ]
