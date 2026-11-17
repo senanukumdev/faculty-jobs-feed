@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import time
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from email.utils import parsedate_to_datetime
@@ -33,8 +34,6 @@ RSS_SOURCES = [
     {"url": "https://www.facultyplus.com/category/engineering/feed/", "country": "India", "subject": "Engineering", "require_match": False},
     {"url": "https://news.google.com/rss/search?q=faculty+recruitment+professor+India+OR+UAE+OR+Oman+OR+Uzbekistan+OR+Kenya&hl=en-IN&gl=IN&ceid=IN:en", "country": "India", "subject": "General", "require_match": False},
     {"url": "https://news.google.com/rss/search?q=%22assistant+professor%22+OR+%22lecturer%22+university+Gulf+OR+Africa+OR+Singapore+OR+Malaysia+-China&hl=en-IN&gl=IN&ceid=IN:en", "country": "", "subject": "General", "require_match": True},
-    {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=108", "country": "", "subject": "Life Sciences", "require_match": True},
-    {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=120", "country": "", "subject": "Engineering", "require_match": True},
 ]
 
 def is_active(deadline_str: str) -> bool:
@@ -121,6 +120,7 @@ if __name__ == "__main__":
                     seen_urls.add(job["applyUrl"])
         except Exception as e:
             print(f"Warning for {src['url']}: {e}")
+        time.sleep(3)
 
     existing.sort(key=lambda j: j.get("postedDate", ""), reverse=True)
 
