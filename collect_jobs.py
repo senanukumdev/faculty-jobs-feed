@@ -13,27 +13,63 @@ ALLOWED_KEYWORDS = [
     "assistant professor", "associate professor", "professor",
     "faculty", "teaching", "academic"
 ]
-EXCLUDED_COUNTRIES = {"china", "prc", "people's republic of china"}
+EXCLUDED_COUNTRIES = {"china", "prc", "people's republic of china", "beijing", "shanghai"}
 
 TARGET_COUNTRY_KEYWORDS = {
-    "india": "India", "chennai": "India", "bengaluru": "India", "delhi": "India", "mumbai": "India",
+    "india": "India", "tamil nadu": "India", "karnataka": "India", "maharashtra": "India",
+    "kerala": "India", "telangana": "India", "gujarat": "India", "west bengal": "India",
+    "chennai": "India", "bengaluru": "India", "bangalore": "India", "delhi": "India",
+    "mumbai": "India", "hyderabad": "India", "pune": "India", "kolkata": "India", "trichy": "India",
     "uae": "UAE", "dubai": "UAE", "abu dhabi": "UAE", "sharjah": "UAE",
-    "saudi arabia": "Saudi Arabia", "riyadh": "Saudi Arabia", "oman": "Oman", "muscat": "Oman",
-    "qatar": "Qatar", "doha": "Qatar", "kuwait": "Kuwait", "bahrain": "Bahrain",
+    "saudi arabia": "Saudi Arabia", "riyadh": "Saudi Arabia", "jeddah": "Saudi Arabia",
+    "oman": "Oman", "muscat": "Oman", "qatar": "Qatar", "doha": "Qatar",
+    "kuwait": "Kuwait", "bahrain": "Bahrain",
     "uzbekistan": "Uzbekistan", "samarkand": "Uzbekistan", "tashkent": "Uzbekistan",
-    "kazakhstan": "Kazakhstan", "kyrgyzstan": "Kyrgyzstan",
-    "kenya": "Kenya", "nairobi": "Kenya", "nigeria": "Nigeria", "ethiopia": "Ethiopia",
-    "south africa": "South Africa", "egypt": "Egypt", "ghana": "Ghana", "rwanda": "Rwanda",
-    "singapore": "Singapore", "malaysia": "Malaysia", "japan": "Japan",
-    "south korea": "South Korea", "thailand": "Thailand", "vietnam": "Vietnam", "indonesia": "Indonesia"
+    "kazakhstan": "Kazakhstan", "almaty": "Kazakhstan", "astana": "Kazakhstan", "kyrgyzstan": "Kyrgyzstan",
+    "kenya": "Kenya", "nairobi": "Kenya", "nigeria": "Nigeria", "lagos": "Nigeria",
+    "ethiopia": "Ethiopia", "addis ababa": "Ethiopia", "south africa": "South Africa",
+    "egypt": "Egypt", "cairo": "Egypt", "ghana": "Ghana", "rwanda": "Rwanda",
+    "singapore": "Singapore", "malaysia": "Malaysia", "kuala lumpur": "Malaysia",
+    "japan": "Japan", "tokyo": "Japan", "south korea": "South Korea", "seoul": "South Korea",
+    "thailand": "Thailand", "vietnam": "Vietnam", "indonesia": "Indonesia"
+}
+
+CITY_STATE_MAP = {
+    "chennai": ("Chennai", "Tamil Nadu"), "coimbatore": ("Coimbatore", "Tamil Nadu"),
+    "trichy": ("Tiruchirappalli", "Tamil Nadu"), "madurai": ("Madurai", "Tamil Nadu"),
+    "salem": ("Salem", "Tamil Nadu"), "vellore": ("Vellore", "Tamil Nadu"),
+    "bengaluru": ("Bengaluru", "Karnataka"), "bangalore": ("Bengaluru", "Karnataka"),
+    "hyderabad": ("Hyderabad", "Telangana"), "mumbai": ("Mumbai", "Maharashtra"),
+    "pune": ("Pune", "Maharashtra"), "delhi": ("New Delhi", "Delhi"),
+    "kolkata": ("Kolkata", "West Bengal"), "kochi": ("Kochi", "Kerala"),
+    "dubai": ("Dubai", "Dubai"), "abu dhabi": ("Abu Dhabi", "Abu Dhabi"),
+    "muscat": ("Muscat", "Muscat"), "doha": ("Doha", "Doha"), "riyadh": ("Riyadh", "Riyadh"),
+    "samarkand": ("Samarkand", "Samarkand"), "tashkent": ("Tashkent", "Tashkent"),
+    "nairobi": ("Nairobi", "Nairobi"), "singapore": ("Singapore", "Singapore"),
+    "kuala lumpur": ("Kuala Lumpur", "Kuala Lumpur")
+}
+
+SUBJECT_KEYWORDS = {
+    "Computer Science": ["computer science", "cse", "data science", "artificial intelligence", "software", "computing", "it "],
+    "Engineering": ["engineering", "mechanical", "civil", "electrical", "electronics", "ece", "eee", "aerospace"],
+    "Life Sciences": ["biology", "biotechnology", "life science", "biochemistry", "medicine", "pharmacy", "nursing"],
+    "Management": ["management", "business", "mba", "commerce", "economics", "finance", "accounting", "marketing"],
+    "Physics": ["physics", "chemistry", "mathematics", "maths", "statistics"]
 }
 
 RSS_SOURCES = [
+    # India (FacultyPlus)
     {"url": "https://www.facultyplus.com/feed/", "country": "India", "subject": "General", "require_match": False},
     {"url": "https://www.facultyplus.com/category/engineering/cse/feed/", "country": "India", "subject": "Computer Science", "require_match": False},
     {"url": "https://www.facultyplus.com/category/engineering/feed/", "country": "India", "subject": "Engineering", "require_match": False},
-    {"url": "https://news.google.com/rss/search?q=faculty+recruitment+professor+India+OR+UAE+OR+Oman+OR+Uzbekistan+OR+Kenya&hl=en-IN&gl=IN&ceid=IN:en", "country": "India", "subject": "General", "require_match": False},
-    {"url": "https://news.google.com/rss/search?q=%22assistant+professor%22+OR+%22lecturer%22+university+Gulf+OR+Africa+OR+Singapore+OR+Malaysia+-China&hl=en-IN&gl=IN&ceid=IN:en", "country": "", "subject": "General", "require_match": True},
+    # India Universities & Portals (Google News RSS)
+    {"url": "https://news.google.com/rss/search?q=%22faculty+recruitment%22+OR+%22assistant+professor%22+India+university&hl=en-IN&gl=IN&ceid=IN:en", "country": "India", "subject": "General", "require_match": False},
+    # Gulf Countries (UAE, Oman, Qatar, Saudi Arabia, Kuwait, Bahrain)
+    {"url": "https://news.google.com/rss/search?q=(professor+OR+lecturer+OR+faculty)+university+(UAE+OR+Dubai+OR+Oman+OR+Qatar+OR+%22Saudi+Arabia%22)&hl=en-IN&gl=IN&ceid=IN:en", "country": "", "subject": "General", "require_match": True},
+    # Central Asia & Africa
+    {"url": "https://news.google.com/rss/search?q=(professor+OR+lecturer+OR+faculty)+university+(Uzbekistan+OR+Kazakhstan+OR+Kenya+OR+Nigeria+OR+%22South+Africa%22+OR+Ethiopia)&hl=en-IN&gl=IN&ceid=IN:en", "country": "", "subject": "General", "require_match": True},
+    # Asia excluding China
+    {"url": "https://news.google.com/rss/search?q=(%22assistant+professor%22+OR+lecturer+OR+%22research+assistant%22)+university+(Singapore+OR+Malaysia+OR+Japan+OR+%22South+Korea%22)+-China&hl=en-IN&gl=IN&ceid=IN:en", "country": "", "subject": "General", "require_match": True},
 ]
 
 def is_active(deadline_str: str) -> bool:
@@ -48,6 +84,22 @@ def detect_country(text: str, default_country: str) -> str:
         if kw in lower:
             return country_name
     return default_country
+
+def detect_city_state(text: str):
+    lower = text.lower()
+    for kw, (city, state) in CITY_STATE_MAP.items():
+        if kw in lower:
+            return city, state
+    return "", ""
+
+def detect_subject(text: str, default_subject: str) -> str:
+    if default_subject != "General":
+        return default_subject
+    lower = text.lower()
+    for subject, kws in SUBJECT_KEYWORDS.items():
+        if any(k in lower for k in kws):
+            return subject
+    return "General"
 
 def load_existing_jobs(path="jobs.json"):
     if not os.path.exists(path):
@@ -64,7 +116,7 @@ def fetch_rss_source(source):
     root = ET.fromstring(resp.content)
     collected = []
 
-    for item in root.findall("./channel/item"):
+    for item in root.findall("./channel/item")[:20]:
         title = (item.findtext("title") or "").strip()
         link = (item.findtext("link") or "").strip()
         raw_desc = item.findtext("description") or ""
@@ -82,6 +134,9 @@ def fetch_rss_source(source):
         if source["require_match"] and not country:
             continue
 
+        city, state = detect_city_state(combined)
+        subject = detect_subject(combined, source["subject"])
+
         pub_raw = item.findtext("pubDate")
         try:
             posted_dt = parsedate_to_datetime(pub_raw).date()
@@ -95,10 +150,10 @@ def fetch_rss_source(source):
             "id": f"job-{job_id}",
             "title": title,
             "institution": "See Official Notice",
-            "city": "",
-            "state": "",
+            "city": city,
+            "state": state,
             "country": country,
-            "subjectArea": source["subject"],
+            "subjectArea": subject,
             "postedDate": posted_dt.strftime("%Y-%m-%d"),
             "deadline": deadline_dt.strftime("%Y-%m-%d"),
             "description": clean_desc or "Click Apply to view the official notice.",
@@ -120,7 +175,7 @@ if __name__ == "__main__":
                     seen_urls.add(job["applyUrl"])
         except Exception as e:
             print(f"Warning for {src['url']}: {e}")
-        time.sleep(3)
+        time.sleep(4)
 
     existing.sort(key=lambda j: j.get("postedDate", ""), reverse=True)
 
