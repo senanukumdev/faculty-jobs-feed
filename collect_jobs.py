@@ -14,7 +14,6 @@ ALLOWED_KEYWORDS = [
 ]
 EXCLUDED_COUNTRIES = {"china", "prc", "people's republic of china"}
 
-# Target regions for country detection & filtering international feeds
 TARGET_COUNTRY_KEYWORDS = {
     "india": "India", "chennai": "India", "bengaluru": "India", "delhi": "India", "mumbai": "India",
     "uae": "UAE", "dubai": "UAE", "abu dhabi": "UAE", "sharjah": "UAE",
@@ -29,14 +28,11 @@ TARGET_COUNTRY_KEYWORDS = {
 }
 
 RSS_SOURCES = [
-    # India (FacultyPlus)
     {"url": "https://www.facultyplus.com/feed/", "country": "India", "subject": "General", "require_match": False},
     {"url": "https://www.facultyplus.com/category/engineering/cse/feed/", "country": "India", "subject": "Computer Science", "require_match": False},
     {"url": "https://www.facultyplus.com/category/engineering/feed/", "country": "India", "subject": "Engineering", "require_match": False},
-    # Multi-region university & portal announcements (India, Gulf, Central Asia, Africa, Asia excl. China)
     {"url": "https://news.google.com/rss/search?q=faculty+recruitment+professor+India+OR+UAE+OR+Oman+OR+Uzbekistan+OR+Kenya&hl=en-IN&gl=IN&ceid=IN:en", "country": "India", "subject": "General", "require_match": False},
     {"url": "https://news.google.com/rss/search?q=%22assistant+professor%22+OR+%22lecturer%22+university+Gulf+OR+Africa+OR+Singapore+OR+Malaysia+-China&hl=en-IN&gl=IN&ceid=IN:en", "country": "", "subject": "General", "require_match": True},
-    # HigherEdJobs (filtered to target regions)
     {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=108", "country": "", "subject": "Life Sciences", "require_match": True},
     {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=120", "country": "", "subject": "Engineering", "require_match": True},
 ]
@@ -114,7 +110,8 @@ def fetch_rss_source(source):
 if __name__ == "__main__":
     existing = load_existing_jobs("jobs.json")
     seen_urls = {j.get("applyUrl") for j in existing}
-for src in RSS_SOURCES:
+
+    for src in RSS_SOURCES:
         try:
             found = fetch_rss_source(src)
             print(f"{src['url']} -> found {len(found)} jobs")
