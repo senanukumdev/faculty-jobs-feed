@@ -29,14 +29,16 @@ TARGET_COUNTRY_KEYWORDS = {
 }
 
 RSS_SOURCES = [
-    # India (FacultyPlus main + subject feeds)
+    # India (FacultyPlus)
     {"url": "https://www.facultyplus.com/feed/", "country": "India", "subject": "General", "require_match": False},
     {"url": "https://www.facultyplus.com/category/engineering/cse/feed/", "country": "India", "subject": "Computer Science", "require_match": False},
     {"url": "https://www.facultyplus.com/category/engineering/feed/", "country": "India", "subject": "Engineering", "require_match": False},
-    # International (HigherEdJobs RSS - filtered to your target regions only)
+    # Multi-region university & portal announcements (India, Gulf, Central Asia, Africa, Asia excl. China)
+    {"url": "https://news.google.com/rss/search?q=faculty+recruitment+professor+India+OR+UAE+OR+Oman+OR+Uzbekistan+OR+Kenya&hl=en-IN&gl=IN&ceid=IN:en", "country": "India", "subject": "General", "require_match": False},
+    {"url": "https://news.google.com/rss/search?q=%22assistant+professor%22+OR+%22lecturer%22+university+Gulf+OR+Africa+OR+Singapore+OR+Malaysia+-China&hl=en-IN&gl=IN&ceid=IN:en", "country": "", "subject": "General", "require_match": True},
+    # HigherEdJobs (filtered to target regions)
     {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=108", "country": "", "subject": "Life Sciences", "require_match": True},
     {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=120", "country": "", "subject": "Engineering", "require_match": True},
-    {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=148", "country": "", "subject": "General", "require_match": True},
 ]
 
 def is_active(deadline_str: str) -> bool:
@@ -112,10 +114,11 @@ def fetch_rss_source(source):
 if __name__ == "__main__":
     existing = load_existing_jobs("jobs.json")
     seen_urls = {j.get("applyUrl") for j in existing}
-
-    for src in RSS_SOURCES:
+for src in RSS_SOURCES:
         try:
-            for job in fetch_rss_source(src):
+            found = fetch_rss_source(src)
+            print(f"{src['url']} -> found {len(found)} jobs")
+            for job in found:
                 if job["applyUrl"] not in seen_urls and is_active(job["deadline"]):
                     existing.append(job)
                     seen_urls.add(job["applyUrl"])
