@@ -14,27 +14,56 @@ ALLOWED_KEYWORDS = [
 ]
 EXCLUDED_COUNTRIES = {"china", "prc", "people's republic of china"}
 
+# Target regions for country detection & filtering international feeds
+TARGET_COUNTRY_KEYWORDS = {
+    "india": "India", "chennai": "India", "bengaluru": "India", "delhi": "India", "mumbai": "India",
+    "uae": "UAE", "dubai": "UAE", "abu dhabi": "UAE", "sharjah": "UAE",
+    "saudi arabia": "Saudi Arabia", "riyadh": "Saudi Arabia", "oman": "Oman", "muscat": "Oman",
+    "qatar": "Qatar", "doha": "Qatar", "kuwait": "Kuwait", "bahrain": "Bahrain",
+    "uzbekistan": "Uzbekistan", "samarkand": "Uzbekistan", "tashkent": "Uzbekistan",
+    "kazakhstan": "Kazakhstan", "kyrgyzstan": "Kyrgyzstan",
+    "kenya": "Kenya", "nairobi": "Kenya", "nigeria": "Nigeria", "ethiopia": "Ethiopia",
+    "south africa": "South Africa", "egypt": "Egypt", "ghana": "Ghana", "rwanda": "Rwanda",
+    "singapore": "Singapore", "malaysia": "Malaysia", "japan": "Japan",
+    "south korea": "South Korea", "thailand": "Thailand", "vietnam": "Vietnam", "indonesia": "Indonesia"
+}
+
+RSS_SOURCES = [
+    # India (FacultyPlus main + subject feeds)
+    {"url": "https://www.facultyplus.com/feed/", "country": "India", "subject": "General", "require_match": False},
+    {"url": "https://www.facultyplus.com/category/engineering/cse/feed/", "country": "India", "subject": "Computer Science", "require_match": False},
+    {"url": "https://www.facultyplus.com/category/engineering/feed/", "country": "India", "subject": "Engineering", "require_match": False},
+    # International (HigherEdJobs RSS - filtered to your target regions only)
+    {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=108", "country": "", "subject": "Life Sciences", "require_match": True},
+    {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=120", "country": "", "subject": "Engineering", "require_match": True},
+    {"url": "https://www.higheredjobs.com/search/rss.cfm?JobCat=148", "country": "", "subject": "General", "require_match": True},
+]
+
 def is_active(deadline_str: str) -> bool:
     try:
         return datetime.strptime(deadline_str, "%Y-%m-%d").date() >= datetime.today().date()
     except ValueError:
         return False
 
+def detect_country(text: str, default_country: str) -> str:
+    lower = text.lower()
+    for kw, country_name in TARGET_COUNTRY_KEYWORDS.items():
+        if kw in lower:
+            return country_name
+    return default_country
+
 def load_existing_jobs(path="jobs.json"):
     if not os.path.exists(path):
         return []
     try:
         with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return [j for j in data if is_active(j.get("deadline", ""))]
+            return [j for j in json.load(f) if is_active(j.get("deadline", ""))]
     except Exception:
         return []
 
-def fetch_facultyplus_rss():
-    url = "https://www.facultyplus.com/feed/"
-    resp = requests.get(url, timeout=20, headers={"User-Agent": "Mozilla/5.0"})
+def fetch_rss_source(source):
+    resp = requests.get(source["url"], timeout=20, headers={"User-Agent": "Mozilla/5.0"})
     resp.raise_for_status()
-
     root = ET.fromstring(resp.content)
     collected = []
 
@@ -43,12 +72,17 @@ def fetch_facultyplus_rss():
         link = (item.findtext("link") or "").strip()
         raw_desc = item.findtext("description") or ""
         clean_desc = BeautifulSoup(raw_desc, "html.parser").get_text(" ", strip=True)[:220]
+        combined = f"{title} {clean_desc}"
 
         if not title or not link:
             continue
-        if not any(k in title.lower() or k in clean_desc.lower() for k in ALLOWED_KEYWORDS):
+        if not any(k in combined.lower() for k in ALLOWED_KEYWORDS):
             continue
-        if any(c in title.lower() or c in clean_desc.lower() for c in EXCLUDED_COUNTRIES):
+        if any(c in combined.lower() for c in EXCLUDED_COUNTRIES):
+            continue
+
+        country = detect_country(combined, source["country"])
+        if source["require_match"] and not country:
             continue
 
         pub_raw = item.findtext("pubDate")
@@ -61,13 +95,13 @@ def fetch_facultyplus_rss():
         job_id = hashlib.md5(link.encode("utf-8")).hexdigest()[:10]
 
         collected.append({
-            "id": f"fp-{job_id}",
+            "id": f"job-{job_id}",
             "title": title,
             "institution": "See Official Notice",
             "city": "",
             "state": "",
-            "country": "India",
-            "subjectArea": "General",
+            "country": country,
+            "subjectArea": source["subject"],
             "postedDate": posted_dt.strftime("%Y-%m-%d"),
             "deadline": deadline_dt.strftime("%Y-%m-%d"),
             "description": clean_desc or "Click Apply to view the official notice.",
@@ -79,16 +113,14 @@ if __name__ == "__main__":
     existing = load_existing_jobs("jobs.json")
     seen_urls = {j.get("applyUrl") for j in existing}
 
-    try:
-        new_jobs = fetch_facultyplus_rss()
-    except Exception as e:
-        print(f"Fetch warning: {e}")
-        new_jobs = []
-
-    for job in new_jobs:
-        if job["applyUrl"] not in seen_urls and is_active(job["deadline"]):
-            existing.append(job)
-            seen_urls.add(job["applyUrl"])
+    for src in RSS_SOURCES:
+        try:
+            for job in fetch_rss_source(src):
+                if job["applyUrl"] not in seen_urls and is_active(job["deadline"]):
+                    existing.append(job)
+                    seen_urls.add(job["applyUrl"])
+        except Exception as e:
+            print(f"Warning for {src['url']}: {e}")
 
     existing.sort(key=lambda j: j.get("postedDate", ""), reverse=True)
 
